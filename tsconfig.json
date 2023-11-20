@@ -14,7 +14,8 @@
     "paths": {
       "*": ["src/*", "migrations/*", "test/*"]
     },
-    "typeRoots": ["./typings", "./node_modules/@types", "@truffle/resolver"]
+    "typeRoots": ["./typings", "./node_modules/@types"],
+    "types": ["@truffle/resolver", "node"]
   },
   "include": [
     "src/**/*.ts",
