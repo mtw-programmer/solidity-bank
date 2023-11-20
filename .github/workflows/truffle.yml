@@ -26,6 +26,9 @@ jobs:
     - name: Install Truffle Dependencies
       run: npm install
     
+    - name: Install @truffle/resolver
+      run: npm install @truffle/resolver
+    
     - name: Install ts-node
       run: npm install -g ts-node
 
