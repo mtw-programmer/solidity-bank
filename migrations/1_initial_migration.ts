@@ -1,7 +1,7 @@
-import { Deployer, artifacts } from 'truffle';
+import { Deployer } from 'truffle';
 
 const Migrations = artifacts.require('Migrations');
 
-module.exports = (deployer: Deployer) => {
+export default (deployer: Deployer) => {
   deployer.deploy(Migrations);
 };
