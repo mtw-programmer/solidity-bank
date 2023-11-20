@@ -26,6 +26,9 @@ jobs:
     - name: Install Truffle and Ganache
       run: npm install truffle ganache -g
 
+    - name: Install ts-node
+      run: npm install ts-node --save-dev
+
     - name: Install Truffle Dependencies
       run: npm install
 
