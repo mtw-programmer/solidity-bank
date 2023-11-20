@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "baseUrl": "./",
+    "paths": {
+      "*": ["src/*", "migrations/*", "test/*"]
+    },
+    "typeRoots": ["./typings", "./node_modules/@types"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "migrations/**/*.ts",
+    "migrations/*.ts",
+    "test/**/*.ts",
+    "test/*.ts",
+    "./typings/**/*.d.ts"
+  ],
+  "ts-node": {
+    "esm": false
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
