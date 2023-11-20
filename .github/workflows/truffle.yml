@@ -28,6 +28,9 @@ jobs:
 
     - name: Run Ganache server
       run: npx ganache -p 7545 &
+    
+    - name: Compile TypeScript
+      run: npx tsc
 
     - name: Run Truffle Test
       run: truffle test
