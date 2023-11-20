@@ -35,9 +35,6 @@ jobs:
     - name: Install TypeScript
       run: npm install typescript --save-dev
 
-    - name: Install @truffle/resolver
-      run: npm install @truffle/resolver
-
     - name: Compile TypeScript
       run: npx tsc
 
