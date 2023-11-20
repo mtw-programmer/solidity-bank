@@ -1,1 +1,1 @@
-declare module '@truffle/resolver';
+declare module '@truffle/resolver' {};
