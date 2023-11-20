@@ -26,8 +26,8 @@ jobs:
     - name: Install Truffle Dependencies
       run: npm install
 
-    - name: Install Truffle, TypeScript, ts-node and Ganache
-      run: npm install truffle ganache ts-node typescript -g
+    - name: Install Truffle, TypeScript, @truffle/resolver@9.0.53 ts-node and Ganache
+      run: npm install truffle ganache ts-node @truffle/resolver@9.0.53 typescript -g
 
     - name: Compile TypeScript
       run: npx tsc
