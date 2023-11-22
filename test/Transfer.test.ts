@@ -1,10 +1,14 @@
 import { assert } from 'chai';
+import Web3 from 'web3';
+
+const web3 = new Web3('http://127.0.0.1:7545');
 
 const Transfer = artifacts.require('./Transfer.sol');
 
 describe('Transfer', () => {
   before(async function () {
     this.transfer = await Transfer.deployed();
+    this.accounts = await web3.eth.getAccounts();
   });
 
   it('deploys successfully', async function () {
@@ -13,5 +17,18 @@ describe('Transfer', () => {
     assert.notEqual(address, '');
     assert.notEqual(address, null);
     assert.notEqual(address, undefined);
+  });
+
+  it('should emit ToppedUp event when top up an account', async function () {
+    const transaction = await this.transfer.sendTransaction({
+      from: this.accounts[0],
+      value: web3.utils.toWei('1', 'ether')
+    });
+
+    const toppedUpEvent = transaction.logs.find((log:any) => log.event === 'ToppedUp');
+
+    assert.exists(toppedUpEvent, 'ToppedUp event should be emitted');
+    assert.notEqual(toppedUpEvent.args.account.toNumber(), 0, 'Invalid account id');
+    assert.equal(toppedUpEvent.args.amount.toString(), web3.utils.toWei('1', 'ether'), 'Amount should match');
   });
 });
