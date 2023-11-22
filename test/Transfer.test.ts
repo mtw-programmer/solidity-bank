@@ -1,7 +1,8 @@
 import { assert } from 'chai';
 import Web3 from 'web3';
+import config from '../utils/config';
 
-const web3 = new Web3('http://127.0.0.1:7545');
+const web3 = new Web3(`${config.PROTOCOL}://${config.HOST}:${config.PORT}`);
 
 const Transfer = artifacts.require('./Transfer.sol');
 
