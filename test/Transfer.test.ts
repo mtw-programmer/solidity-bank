@@ -25,7 +25,7 @@ describe('Transfer', () => {
       value: web3.utils.toWei('1', 'ether')
     });
 
-    const toppedUpEvent = transaction.logs.find((log:any) => log.event === 'ToppedUp');
+    const toppedUpEvent = transaction.logs.find((log:{ event:string }) => log.event === 'ToppedUp');
 
     assert.exists(toppedUpEvent, 'ToppedUp event should be emitted');
     assert.notEqual(toppedUpEvent.args.account.toNumber(), 0, 'Invalid account id');
