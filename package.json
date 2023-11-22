@@ -1,6 +1,7 @@
 {
   "devDependencies": {
     "@types/chai": "^4.3.10",
+    "@types/dotenv": "^8.2.0",
     "@types/mocha": "^10.0.4",
     "@types/node": "^20.9.2",
     "chai": "^4.3.10",
@@ -171,6 +172,7 @@
     "dom-walk": "^0.1.2",
     "dot-case": "^2.1.1",
     "dot-prop": "^6.0.1",
+    "dotenv": "^16.3.1",
     "double-ended-queue": "^2.1.0-0",
     "duplexer3": "^0.1.5",
     "easy-extender": "^2.3.4",
