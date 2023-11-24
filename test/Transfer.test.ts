@@ -4,13 +4,11 @@ import config from '../utils/config';
 
 const web3 = new Web3(`${config.PROTOCOL}://${config.HOST}:${config.PORT}`);
 
-const Users = artifacts.require('./Users.sol');
 const Transfer = artifacts.require('./Transfer.sol');
 
 describe('Transfer', () => {
   before(async function () {
     this.transfer = await Transfer.deployed();
-    this.users = await Users.deployed(),
     this.accounts = await web3.eth.getAccounts();
   });
 
