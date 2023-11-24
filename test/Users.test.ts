@@ -19,4 +19,17 @@ describe('Users', () => {
     assert.notEqual(address, null);
     assert.notEqual(address, undefined);
   });
+
+  it('fails when restricted account tries to add modifier', async function () {
+    try {
+      await this.users.addModifier(this.accounts[2], { from: this.accounts[1] });
+      assert.fail('Expected an error but did not get one');
+    } catch (ex:any) {
+      assert.include(ex.message, "This function is restricted to the contract's owner");
+    }
+  });
+
+  it('successfully adds modifier', async function () {
+    await this.users.addModifier(this.accounts[1], { from: this.accounts[0] });
+  });
 });
