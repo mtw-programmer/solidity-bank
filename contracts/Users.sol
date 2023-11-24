@@ -15,7 +15,7 @@ contract Users {
   }
 
   modifier restricted() {
-    require(modifiers[msg.sender] || modifiers[usersContractAddress], "This function is restricted to the contract's owner");
+    require(modifiers[msg.sender], "This function is restricted to the contract's owner");
     _;
   }
 
