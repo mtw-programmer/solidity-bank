@@ -6,7 +6,7 @@ const web3 = new Web3(`${config.PROTOCOL}://${config.HOST}:${config.PORT}`);
 
 const Transfer = artifacts.require('./Transfer.sol');
 
-describe('Transfer', () => {
+describe('Transfer Contract:', () => {
   before(async function () {
     this.transfer = await Transfer.deployed();
     this.accounts = await web3.eth.getAccounts();

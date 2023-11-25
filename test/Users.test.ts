@@ -6,13 +6,13 @@ const web3 = new Web3(`${config.PROTOCOL}://${config.HOST}:${config.PORT}`);
 
 const Users = artifacts.require('./Users.sol');
 
-describe('Users', () => {
+describe('Users Contract:', () => {
   before(async function () {
     this.users = await Users.deployed(),
     this.accounts = await web3.eth.getAccounts();
   });
 
-  describe('Deploy', async function () {
+  describe('[Deploy]', async function () {
     it('deploys successfully', async function () {
       const address = await this.users.address;
       assert.notEqual(address, 0x0);
@@ -22,7 +22,7 @@ describe('Users', () => {
     });
   });
 
-  describe('Modifier', async function () {
+  describe('[Modifier]', async function () {
     it('fails when restricted account tries to add modifier', async function () {
       try {
         await this.users.addModifier(this.accounts[2], { from: this.accounts[1] });
@@ -37,7 +37,7 @@ describe('Users', () => {
     });
   });
 
-  describe('getUserId', async function () {
+  describe('[getUserId]', async function () {
     it('fails when restricted account tries to get user id', async function () {
       try {
         await this.users.getUserId(this.accounts[1], { from: this.accounts[2] });
