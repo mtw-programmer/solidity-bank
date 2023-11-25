@@ -36,4 +36,20 @@ describe('Users', () => {
       await this.users.addModifier(this.accounts[1], { from: this.accounts[0] });
     });
   });
+
+  describe('getUserId', async function () {
+    it('fails when restricted account tries to get user id', async function () {
+      try {
+        await this.users.getUserId(this.accounts[1], { from: this.accounts[2] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "This function is restricted to the contract's owner");
+      }
+    });
+
+    it('successfully gets user id', async function () {
+      const res = await this.users.getUserId(this.accounts[1], { from: this.accounts[1] });
+      assert.notEqual(res, 0);
+    });
+  });
 });
