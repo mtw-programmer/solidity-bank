@@ -7,8 +7,8 @@ contract Transfer {
   Users private usersContract;
 
   constructor(address usersAddress) {
+    require(usersAddress != address(0), "Invalid Users contract address");
     usersContract = Users(usersAddress);
-    usersContract.addModifier(address(this));
   }
 
   event ToppedUp(uint account, uint256 amount, uint256 time);
