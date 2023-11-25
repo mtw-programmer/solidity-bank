@@ -3,7 +3,6 @@ pragma solidity ^0.8.19;
 
 contract Users {
   mapping(address => bool) private modifiers;
-  address private usersContractAddress = address(this);
 
   uint private accountQuantity = 0;
   mapping(address => uint) private id;
@@ -11,7 +10,7 @@ contract Users {
 
   constructor() {
     modifiers[msg.sender] = true;
-    modifiers[usersContractAddress] = true;
+    modifiers[address(this)] = true;
   }
 
   modifier restricted() {
@@ -33,8 +32,9 @@ contract Users {
   }
 
   function addFunds(address _to, uint256 _amount) external restricted {
-    require(getUserId(_to) > 0, "Invalid user address");
+    uint userId = getUserId(_to);
+    require(userId > 0, "Invalid user address");
     require(_amount > 0, "Invalid amount");
-    balance[getUserId(_to)] += _amount;
+    balance[userId] += _amount;
   }
 }
