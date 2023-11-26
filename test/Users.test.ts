@@ -12,7 +12,7 @@ describe('Users Contract:', () => {
     this.accounts = await web3.eth.getAccounts();
   });
 
-  describe('[Deploy]', async function () {
+  describe('[Deploy]', function () {
     it('deploys successfully', async function () {
       const address = await this.users.address;
       assert.notEqual(address, 0x0);
@@ -22,7 +22,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[Modifier]', async function () {
+  describe('[Modifier]', function () {
     it('fails when restricted account tries to add modifier', async function () {
       try {
         await this.users.addModifier(this.accounts[2], { from: this.accounts[1] });
@@ -37,7 +37,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[getUserId]', async function () {
+  describe('[getUserId]', function () {
     it('fails when restricted account tries to get user id', async function () {
       try {
         await this.users.getUserId(this.accounts[1], { from: this.accounts[2] });
@@ -53,7 +53,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[getUserBalance]', async function () {
+  describe('[getUserBalance]', function () {
     it('fails when restricted account tries to get balance', async function () {
       try {
         await this.users.getUserBalance(this.accounts[1], { from: this.accounts[2] });
@@ -78,7 +78,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[addFunds]', async function () {
+  describe('[addFunds]', function () {
     it('fails when restricted account tries to addFunds', async function () {
       try {
         await this.users.addFunds(this.accounts[1], 1, { from: this.accounts[2] });
@@ -119,6 +119,59 @@ describe('Users Contract:', () => {
       await this.users.addFunds(this.accounts[3], 1, { from: this.accounts[1] });
       const balance = await this.users.getUserBalance.call(this.accounts[3], { from: this.accounts[1] });
       assert.equal(balance.toNumber(), 1);
+    });
+  });
+
+  describe('[takeFunds]', function () {
+    it('fails when restricted account tries to takeFunds', async function () {
+      try {
+        await this.users.takeFunds(this.accounts[3], 1, { from: this.accounts[2] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "This function is restricted to the contract's owner");
+      }
+    });
+
+    it('fails when invalid address given', async function () {
+      try {
+        await this.users.takeFunds('a', 1, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('fails when 0x0 address given', async function () {
+      try {
+        await this.users.takeFunds(0x0, 1, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('fails when invalid amount given', async function () {
+      try {
+        await this.users.takeFunds(this.accounts[3], 0, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('fails when amount is not on the account', async function () {
+      try {
+        await this.users.takeFunds(this.accounts[3], 10, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "Insufficient amount on the account");
+      }
+    });
+
+    it('successfully takes balances from the account', async function () {
+      await this.users.takeFunds(this.accounts[3], 1, { from: this.accounts[1] });
+      const balance = await this.users.getUserBalance.call(this.accounts[3], { from: this.accounts[1] });
+      assert.equal(balance.toNumber(), 0);
     });
   });
 });

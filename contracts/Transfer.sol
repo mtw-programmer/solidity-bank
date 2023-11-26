@@ -17,4 +17,10 @@ contract Transfer {
     usersContract.addFunds(msg.sender, msg.value);
     emit ToppedUp(usersContract.getUserId(msg.sender), msg.value, block.timestamp);
   }
+
+  function transfer(address _to, uint256 _amount) external {
+    require(_to != msg.sender, "You cannot transfer funds to your own account");
+    usersContract.takeFunds(msg.sender, _amount);
+    usersContract.addFunds(_to, _amount);
+  }
 }
