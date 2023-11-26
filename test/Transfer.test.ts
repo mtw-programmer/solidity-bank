@@ -12,24 +12,28 @@ describe('Transfer Contract:', () => {
     this.accounts = await web3.eth.getAccounts();
   });
 
-  it('deploys successfully', async function () {
-    const address = await this.transfer.address;
-    assert.notEqual(address, 0x0);
-    assert.notEqual(address, '');
-    assert.notEqual(address, null);
-    assert.notEqual(address, undefined);
+  describe('[Deploy]', function () {
+    it('deploys successfully', async function () {
+      const address = await this.transfer.address;
+      assert.notEqual(address, 0x0);
+      assert.notEqual(address, '');
+      assert.notEqual(address, null);
+      assert.notEqual(address, undefined);
+    });
   });
 
-  it('should emit ToppedUp event when top up an account', async function () {
-    const transaction = await this.transfer.sendTransaction({
-      from: this.accounts[0],
-      value: web3.utils.toWei('1', 'ether')
+  describe('[ToppedUp event]', function () {
+    it('should emit ToppedUp event when top up an account', async function () {
+      const transaction = await this.transfer.sendTransaction({
+        from: this.accounts[0],
+        value: web3.utils.toWei('1', 'ether')
+      });
+
+      const toppedUpEvent = transaction.logs.find((log:{ event:string }) => log.event === 'ToppedUp');
+
+      assert.exists(toppedUpEvent, 'ToppedUp event should be emitted');
+      assert.notEqual(toppedUpEvent.args.account.toNumber(), 0, 'Invalid account id');
+      assert.equal(toppedUpEvent.args.amount.toString(), web3.utils.toWei('1', 'ether'), 'Amount should match');
     });
-
-    const toppedUpEvent = transaction.logs.find((log:{ event:string }) => log.event === 'ToppedUp');
-
-    assert.exists(toppedUpEvent, 'ToppedUp event should be emitted');
-    assert.notEqual(toppedUpEvent.args.account.toNumber(), 0, 'Invalid account id');
-    assert.equal(toppedUpEvent.args.amount.toString(), web3.utils.toWei('1', 'ether'), 'Amount should match');
   });
 });
