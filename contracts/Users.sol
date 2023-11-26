@@ -42,4 +42,12 @@ contract Users {
     require(_amount > 0, "Invalid amount");
     balance[userId] += _amount;
   }
+
+  function takeFunds(address _from, uint256 _amount) external restricted {
+    uint userId = getUserId(_from);
+    require(userId > 0, "Invalid user address");
+    require(_amount > 0, "Invalid amount");
+    require(balance[userId] >= _amount, "Insufficient amount on the account");
+    balance[userId] -= _amount;
+  }
 }
