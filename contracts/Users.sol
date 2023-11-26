@@ -31,6 +31,11 @@ contract Users {
     return id[_address];
   }
 
+  function getUserBalance (address _address) external restricted returns (uint256) {
+    uint userId = getUserId(_address);
+    return balance[userId];
+  }
+
   function addFunds(address _to, uint256 _amount) external restricted {
     uint userId = getUserId(_to);
     require(userId > 0, "Invalid user address");
