@@ -52,4 +52,46 @@ describe('Users Contract:', () => {
       assert.notEqual(res, 0);
     });
   });
+
+  describe('[addFunds]', async function () {
+    it('fails when restricted account tries to addFunds', async function () {
+      try {
+        await this.users.addFunds(this.accounts[1], 1, { from: this.accounts[2] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "This function is restricted to the contract's owner");
+      }
+    });
+    
+    it('fails when invalid address given', async function () {
+      try {
+        await this.users.addFunds('a', 1, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+    
+    it('fails when 0x0 address given', async function () {
+      try {
+        await this.users.addFunds(0x0, 1, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+    
+    it('fails when invalid amount given', async function () {
+      try {
+        await this.users.addFunds(this.accounts[0], 0, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('successfully adds balances to the account', async function () {
+      await this.users.addFunds(this.accounts[0], 1, { from: this.accounts[1] });
+    });
+  });
 });
