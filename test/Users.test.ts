@@ -121,4 +121,57 @@ describe('Users Contract:', () => {
       assert.equal(balance.toNumber(), 1);
     });
   });
+
+  describe('[takeFunds]', async function () {
+    it('fails when restricted account tries to takeFunds', async function () {
+      try {
+        await this.users.takeFunds(this.accounts[3], 1, { from: this.accounts[2] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "This function is restricted to the contract's owner");
+      }
+    });
+
+    it('fails when invalid address given', async function () {
+      try {
+        await this.users.takeFunds('a', 1, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('fails when 0x0 address given', async function () {
+      try {
+        await this.users.takeFunds(0x0, 1, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('fails when invalid amount given', async function () {
+      try {
+        await this.users.takeFunds(this.accounts[3], 0, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.exists(ex.message);
+      }
+    });
+
+    it('fails when amount is not on the account', async function () {
+      try {
+        await this.users.takeFunds(this.accounts[3], 10, { from: this.accounts[1] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "Insufficient amount on the account");
+      }
+    });
+
+    it('successfully takes balances from the account', async function () {
+      await this.users.takeFunds(this.accounts[3], 1, { from: this.accounts[1] });
+      const balance = await this.users.getUserBalance.call(this.accounts[3], { from: this.accounts[1] });
+      assert.equal(balance.toNumber(), 0);
+    });
+  });
 });
