@@ -1,4 +1,4 @@
-import { Deployer } from "truffle";
+import { Deployer } from 'truffle';
 
 const Users = artifacts.require('Users');
 const Transfer = artifacts.require('Transfer');
