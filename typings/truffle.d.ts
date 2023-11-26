@@ -1,5 +1,5 @@
 declare module 'truffle' {
   export interface Deployer {
-    deploy(contract: any): void;
+    deploy: (contract: any, options?: any) => void;
   }
 }
