@@ -12,7 +12,7 @@ describe('Users Contract:', () => {
     this.accounts = await web3.eth.getAccounts();
   });
 
-  describe('[Deploy]', async function () {
+  describe('[Deploy]', function () {
     it('deploys successfully', async function () {
       const address = await this.users.address;
       assert.notEqual(address, 0x0);
@@ -22,7 +22,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[Modifier]', async function () {
+  describe('[Modifier]', function () {
     it('fails when restricted account tries to add modifier', async function () {
       try {
         await this.users.addModifier(this.accounts[2], { from: this.accounts[1] });
@@ -37,7 +37,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[getUserId]', async function () {
+  describe('[getUserId]', function () {
     it('fails when restricted account tries to get user id', async function () {
       try {
         await this.users.getUserId(this.accounts[1], { from: this.accounts[2] });
@@ -53,7 +53,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[getUserBalance]', async function () {
+  describe('[getUserBalance]', function () {
     it('fails when restricted account tries to get balance', async function () {
       try {
         await this.users.getUserBalance(this.accounts[1], { from: this.accounts[2] });
@@ -78,7 +78,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[addFunds]', async function () {
+  describe('[addFunds]', function () {
     it('fails when restricted account tries to addFunds', async function () {
       try {
         await this.users.addFunds(this.accounts[1], 1, { from: this.accounts[2] });
@@ -122,7 +122,7 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[takeFunds]', async function () {
+  describe('[takeFunds]', function () {
     it('fails when restricted account tries to takeFunds', async function () {
       try {
         await this.users.takeFunds(this.accounts[3], 1, { from: this.accounts[2] });
