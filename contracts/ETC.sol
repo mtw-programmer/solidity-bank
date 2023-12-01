@@ -9,7 +9,7 @@ contract ETC {
   mapping(uint256 => bool) private locked;
   Users private usersContract;
   Transfer private transferContract;
-  uint256 nonce;
+  uint256 private nonce;
 
   struct Code {
     address from;
