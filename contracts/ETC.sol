@@ -24,10 +24,12 @@ contract ETC {
     address executedBy; /// @dev Address of the payer
   }
 
-  /// @dev Contract constructor, sets Users and Transfer instances
-  /// @dev Ensures that no 0 addresses given
-  /// @param usersAddress The address of the deployed Users contract
-  /// @param transferAddress The address of the deployed Transfer contract
+  /**
+  * @dev Contract constructor, sets Users and Transfer instances
+  * @dev Ensures that no 0 addresses given
+  * @param usersAddress The address of the deployed Users contract
+  * @param transferAddress The address of the deployed Transfer contract
+  */
   constructor(address usersAddress, address payable transferAddress) {
     require(usersAddress != address(0), "Invalid Users contract address");
     require(transferAddress != address(0), "Invalid Transfer contract address");
@@ -35,11 +37,13 @@ contract ETC {
     transferContract = Transfer(transferAddress);
   }
 
-  /// @dev Generate random number for code
-  /// @dev The randomness is obtained by hashing the concatenated values using Keccak256,
-  ///      and then converting the result to a uint256. The modulo operation is used
-  ///      to limit the range, and the final result is within the range [100,000, 999,999]
-  /// @return A pseudo-random number within the range [100,000, 999,999]
+  /**
+  * @dev Generate random number for code
+  * @dev The randomness is obtained by hashing the concatenated values using Keccak256,
+  *      and then converting the result to a uint256. The modulo operation is used
+  *      to limit the range, and the final result is within the range [100,000, 999,999]
+  * @return A pseudo-random number within the range [100,000, 999,999]
+  */
   function generateRandomNumber() internal view returns (uint256) {
     uint256 seed = uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp)));
     return uint256(
@@ -47,10 +51,12 @@ contract ETC {
     ) % 900000 + 100000;
   }
 
-  /// @notice Generate Ethereum Code active for 1.5 mins
-  /// @dev Ensures that provided _amount is greater than 0
-  /// @param _amount Amount for the transaction
-  /// @return 6 digit code number for mapping
+  /**
+  * @notice Generate Ethereum Code active for 1.5 mins
+  * @dev Ensures that provided _amount is greater than 0
+  * @param _amount Amount for the transaction
+  * @return 6 digit code number for mapping
+  */
   function generateCode(uint256 _amount) public returns (uint256) {
     require(_amount > 0, "Invalid amount");
     uint256 code = generateRandomNumber();
@@ -62,14 +68,16 @@ contract ETC {
     return code;
   }
 
-  /// @notice Pay with the active code
-  /// @dev Ensures that code is not is not temporary locked for security reasons
-  /// @dev Ensures that code is set
-  /// @dev Ensures that code is not expired or inactive
-  /// @dev Ensures that code wasn't executed before
-  /// @dev Ensures that code creator is not trying to use their own code
-  /// @dev Ensures that payer has the sufficient amount on the account
-  /// @param _code 6 digit code identifier
+  /**
+  * @notice Pay with the active code
+  * @dev Ensures that code is not is not temporary locked for security reasons
+  * @dev Ensures that code is set
+  * @dev Ensures that code is not expired or inactive
+  * @dev Ensures that code wasn't executed before
+  * @dev Ensures that code creator is not trying to use their own code
+  * @dev Ensures that payer has the sufficient amount on the account
+  * @param _code 6 digit code identifier
+  */
   function useCode(uint256 _code) public {
     require(!locked[_code], "Code is temporary locked. Please, try again later");
     require(codes[_code].amount > 0, "Code doesn't exists or is expired");
@@ -84,12 +92,14 @@ contract ETC {
     locked[_code] = false;
   }
 
-  /// @notice Cancel your own code
-  /// @dev Ensures that code is not locked
-  /// @dev Ensures that the users is not trying to cancel someone else code
-  /// @dev Ensures that code is not already executed
-  /// @dev Ensures that code is not expired
-  /// @param _code 6 digit code identifier
+  /**
+  * @notice Cancel your own code
+  * @dev Ensures that code is not locked
+  * @dev Ensures that the users is not trying to cancel someone else code
+  * @dev Ensures that code is not already executed
+  * @dev Ensures that code is not expired
+  * @param _code 6 digit code identifier
+  */
   function cancelCode(uint256 _code) external {
     require(!locked[_code], "Code is temporary locked. Please, try again later");
     require(msg.sender == codes[_code].from, "This function is restricted to the code's owner");
