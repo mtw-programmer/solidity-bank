@@ -21,4 +21,21 @@ describe('ETC Contract:', () => {
       assert.notEqual(address, undefined);
     });
   });
+
+  describe('[generateCode]', async function () {
+    it('fails when amount is invalid', async function () {
+      try {
+        await this.etc.generateCode.call(0, { from: this.accounts[0] });
+        assert.fail('Expected an error but did not get one');
+      } catch (ex:any) {
+        assert.include(ex.message, "Invalid amount");
+      }
+    });
+
+    it('successfully generates ETC', async function () {
+      const code = await this.etc.generateCode.call(1, { from: this.accounts[0] });
+      assert.isTrue(code.toNumber() >= 100000, "Invalid code range");
+      assert.isTrue(code.toNumber() <= 999999, "Invalid code range");
+    });
+  });
 });
