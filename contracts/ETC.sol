@@ -14,8 +14,6 @@ contract ETC {
     Users private usersContract; /// @dev Users contract instance
     Transfer private transferContract; /// @dev Transfer contract instance
 
-    uint256 private nonce; /// @dev Nonce for generating random numbers
-
     /// @notice This struct represents information about code
     struct Code {
         address from; /// @dev Address of the code creator
@@ -45,20 +43,22 @@ contract ETC {
      * @dev The randomness is obtained by hashing the concatenated values using Keccak256,
      *      and then converting the result to a uint256. The modulo operation is used
      *      to limit the range, and the final result is within the range [100,000, 999,999]
+     * @param _nonce Nonce for generating random numbers
+     * @param _seed Seed for generating random numbers
      * @return A pseudo-random number within the range [100,000, 999,999]
      */
-    function generateRandomNumber() private view returns (uint256) {
-        uint256 seed = uint256(
-            keccak256(abi.encodePacked(msg.sender, block.timestamp))
-        );
+    function generateRandomNumber(
+        uint256 _nonce,
+        uint256 _seed
+    ) private view returns (uint256) {
         return
             (uint256(
                 keccak256(
                     abi.encodePacked(
                         block.timestamp,
                         blockhash(block.number - 1),
-                        nonce,
-                        seed
+                        _nonce,
+                        _seed
                     )
                 )
             ) % 900000) + 100000;
@@ -72,13 +72,19 @@ contract ETC {
      */
     function generateCode(uint256 _amount) external returns (uint256) {
         require(_amount > 0, "Invalid amount");
-        uint256 code = generateRandomNumber();
+        uint256 attempts = 0;
+        uint256 seed = uint256(
+            keccak256(abi.encodePacked(msg.sender, block.timestamp))
+        );
+        uint256 code = generateRandomNumber(123, seed);
         /// @dev Generates code number to the moment when a code is unique or the old one is expired
-        while (
-            codes[code].amount == 0 ||
-            codes[code].expirationTime > block.timestamp
-        ) {
-            code = generateRandomNumber();
+        while (codes[code].expirationTime > block.timestamp) {
+            require(
+                attempts < 5,
+                "Exceeded maximum attempts. Please, try again later."
+            );
+            code = generateRandomNumber(123, seed);
+            attempts++;
         }
         codes[code] = Code(
             msg.sender,
