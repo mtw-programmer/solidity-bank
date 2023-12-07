@@ -47,7 +47,7 @@ contract ETC {
      *      to limit the range, and the final result is within the range [100,000, 999,999]
      * @return A pseudo-random number within the range [100,000, 999,999]
      */
-    function generateRandomNumber() internal view returns (uint256) {
+    function generateRandomNumber() private view returns (uint256) {
         uint256 seed = uint256(
             keccak256(abi.encodePacked(msg.sender, block.timestamp))
         );
@@ -70,7 +70,7 @@ contract ETC {
      * @param _amount Amount for the transaction
      * @return 6 digit code number for mapping
      */
-    function generateCode(uint256 _amount) public returns (uint256) {
+    function generateCode(uint256 _amount) external returns (uint256) {
         require(_amount > 0, "Invalid amount");
         uint256 code = generateRandomNumber();
         /// @dev Generates code number to the moment when a code is unique or the old one is expired
@@ -99,7 +99,7 @@ contract ETC {
      * @dev Ensures that payer has the sufficient amount on the account
      * @param _code 6 digit code identifier
      */
-    function useCode(uint256 _code) public {
+    function useCode(uint256 _code) external {
         require(
             !locked[_code],
             "Code is temporary locked. Please, try again later"
