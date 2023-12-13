@@ -89,7 +89,7 @@ contract ETC {
         codes[code] = Code(
             msg.sender,
             _amount,
-            block.timestamp + 1.5 minutes,
+            block.timestamp + 90 seconds,
             address(0)
         );
         return code;
