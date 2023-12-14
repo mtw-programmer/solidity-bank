@@ -23,6 +23,10 @@ contract Transfer {
             _to != msg.sender,
             "You cannot transfer funds to your own account"
         );
+        require(
+            usersContract.getUserBalance(msg.sender) >= _amount,
+            "Insufficient amount on the account"
+        );
         usersContract.takeFunds(msg.sender, _amount);
         usersContract.addFunds(_to, _amount);
     }
