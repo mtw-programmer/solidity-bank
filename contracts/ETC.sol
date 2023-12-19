@@ -131,10 +131,8 @@ contract ETC {
         );
         /// @dev Temporary locks the code actions due to security reasons
         locked[_code] = true;
-        transferContract.transfer(
-            payable(codes[_code].from),
-            codes[_code].amount
-        );
+        usersContract.addFunds(codes[_code].from, codes[_code].amount);
+        usersContract.takeFunds(msg.sender, codes[_code].amount);
         codes[_code].executedBy = msg.sender;
         locked[_code] = false;
     }
