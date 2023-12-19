@@ -125,9 +125,6 @@ describe('ETC Contract:', () => {
 
       await this.etc.useCode(code.toNumber(), { from: this.accounts[1] });
 
-      // Wait for the transaction to be mined
-      await web3.eth.getTransactionReceipt(receipt.tx);
-
       const balanceAfterSender = await this.users.getUserBalance.call(this.accounts[1], { from: this.accounts[0] });
       const balanceAfterRecipient = await this.users.getUserBalance.call(this.accounts[0], { from: this.accounts[0] });
 
