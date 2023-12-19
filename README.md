@@ -1,6 +1,6 @@
 # Solidity Bank
 
-Simple solidity application allowing to make transfers and paying with ETC - 6-digit codes allowing fast and safe transactions.
+Solidity application allowing to make transfers and pay with ETC - 6-digit codes providing fast and safe transactions.
 
 ## Issues I've encountered and how I dealt with them
 
