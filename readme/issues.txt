@@ -1,0 +1,176 @@
+My main idea behind this app was to create a simple transfer method with ETC feature. ETC (EThereum Codes) is a 6-digit number allowing to make faster transactions without need to entering a whole recipient's address. It's a faster way of making transactions and better user experience.
+
+The "greates" issues I encountered 😁:
+
+1) The ETC code is not saved to the blockchain - "Code doesn't exists or is expired" error when calling useCode function after generateCode
+
+Reason: I wanted to receive returned number of the code so I used .call() function in my tests. Call function is actually read-only so doesn't modify the blockchain state. And that's the reason why I've seen the issue, new code wasn't saved to the blockchain. Without call function I won't get any returned value only receipt of the transaction.
+
+Fix: One of the potential fixes can be emitting. And I think it is the only option at this moment. Emit with code can be accessed in receipt logs and I can't see any security issues with that (the receiver and amount is already set). And then I have to get rid of returns and create CodeGenerated event.
+
+-----
+
+2) Invalid user balance - "Insufficient amount on the account" error from function takeFunds in Users contract with condition: balance[userId] >= _amount when trying to call the function useCode correctly
+
+Potential reason no. 1: funds are not added - low probability I think because tried to sendTransaction to the Transfer contract and call addFunds from Users
+Yop, that's not it because getUserBalance returned 2 :/
+
+I thought maybe adding { from: this.accounts[0] } will fix the issue because addFunds is restricted, but that's not it
+
+Potential reason no. 2: if that's not addFunds method maybe it's a bad read from balance[userId]
+It wasn't that
+
+Reason given: Panic: Arithmetic overflow. when I commented the "Insufficient amount on the account" require
+Arithmetic overflow can appear when I try to substract more than a uint256 value stores
+So somehow even when I top up an account the money is still not there
+
+-----
+
+Potential reason no. 3: Problem with getUserId function. When a function saves balances to the current id and then the id will change the account is at the same time topped up and empty, because the return id could somehow change.
+IDs are the same and correctly greater than 0, so rather no that
+The code works after commenting transaction.transfer and the issue is for sure from take function- I think the id might be generated later and the initial values cause issue.
+
+Potential fix: get rid of userId - it was useless, caused issues and redundancy; shouldn't be even created :)
+The same issue still exists but getting rid of userId gave more clarity to the code
+
+Amount in the code struct is also set properly
+
+Okay, when I commented these lines in takeFunds:
+
+```
+require(
+   balance[_from] >= _amount,
+   "Insufficient amount on the account"
+);
+balance[_from] -= _amount;
+
+```
+
+these test passes:
+
+✔ fails when using a used code (549ms)
+✔ successfully uses a code (488ms)
+
+but this test still fails:
+
+[ToppedUp event]
+      1) should emit ToppedUp event when top up an account
+      
+Commenting this line: 
+
+usersContract.addFunds(msg.sender, msg.value);
+
+in Transfer fallback still hasn't fixed the ToppedUp emit issue
+
+ToppedUp emit fix: Okay, I still expected userId in tests but replaced it with address. Updated asserts.
+
+-----
+
+Okay, so at this moment these tests fail (both from useCode function in ETC contract):
+
+1) fails when using a used code
+2) successfully uses a code
+
+1) and 2) are reverted with error message "Insufficient amount on the account." inside transfer method and if I comment it the same message in takeFunds method
+
+Restricted modifier doesn't affect the accessibility (doesn't cause any reject)
+
+
+```
+const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
+const code = await receipt.logs[0].args.code;
+      
+await this.users.addFunds(this.accounts[1], 5, { from: this.accounts[0] });
+const balanceBefore = await this.users.getUserBalance.call(this.accounts[1], { from: this.accounts[0] });
+console.log(code.toNumber());
+console.log(balanceBefore.toNumber());
+```
+
+That code logs this response in the console:
+
+```
+691427
+6
+```
+
+So it means that generateCode and addFunds functions works properly
+
+Created getCode function for debugging in ETC contract:
+
+```
+function getCode(uint256 _code) external view returns (Code memory) {
+  return codes[_code];
+}
+```
+
+
+```
+const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
+const code = await receipt.logs[0].args.code;
+      
+await this.users.addFunds(this.accounts[1], 5, { from: this.accounts[0] });
+const balanceBefore = await this.users.getUserBalance.call(this.accounts[1], { from: this.accounts[0] });
+      
+console.log(code.toNumber());
+console.log(balanceBefore.toNumber());
+
+console.log(await this.etc.getCode(code.toNumber()));
+```
+
+That code displays that response:
+
+```
+657740
+6
+[
+  '0xa95712a0988C99B9704f9Fc5E04b0A1Fac5d9233',
+  '1',
+  '1702932543',
+  '0x0000000000000000000000000000000000000000',
+  from: '0xa95712a0988C99B9704f9Fc5E04b0A1Fac5d9233',
+  amount: '1',
+  expirationTime: '1702932543',
+  executedBy: '0x0000000000000000000000000000000000000000'
+]
+```
+
+So it means the code is properly written
+
+
+Replacing that code in useCode function:
+
+```
+transferContract.transfer(
+  payable(codes[_code].from),
+  codes[_code].amount
+);
+```
+with:
+
+```
+usersContract.takeFunds(msg.sender, codes[_code].amount);
+usersContract.addFunds(codes[_code].from, codes[_code].amount);
+```
+
+doesn't transfer the money between 2 accounts but except that case make all tests passing
+but doesn't revert the function in any point (even in insufficient amount test)
+
+So finally everything works but useCode doesn't transfer money and doesn't revert at any point
+
+Commenting locked util doesn't work
+
+Replacing order to:
+
+```
+usersContract.addFunds(codes[_code].from, codes[_code].amount);
+usersContract.takeFunds(msg.sender, codes[_code].amount);
+```
+
+doesn't change anything
+
+Oh, I can see, if there's a transfer function in the useCode the accounts[1] has 1 fund and when there is a takeFunds and addFunds the initial value equals 0
+With takeFunds and addFunds it works perfectly fine
+With transfer method "using a used code" and "successfully uses a code" test suites fail
+So I'm gonna leave it for now
+
+Refactored: addFunds in used code test and don't add any funds in useCode - numbers changed and it gave more clarity
