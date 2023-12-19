@@ -132,4 +132,73 @@ describe('ETC Contract:', () => {
       assert.equal(balanceAfterRecipient.toNumber(), 2, 'The recipient balance after transaction is not valid');
     });
   });
+
+  describe('[cancelCode]', async function () {
+    it('fails when not owner tries to cancel code', async function () {
+      try {
+        const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
+        const code = receipt.logs[0].args.code;
+        await this.etc.cancelCode(code.toNumber(), { from: this.accounts[1] });
+      } catch (ex:any) {
+        assert.include(ex.message, "This function is restricted to the code's owner");
+      }
+    });
+
+    it('fails when code is already executed', async function () {
+      try {
+        const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
+        const code = await receipt.logs[0].args.code;
+
+        await this.users.addFunds(this.accounts[1], 1, { from: this.accounts[0] });
+        await this.etc.useCode(code.toNumber(), { from: this.accounts[1] });
+        await this.etc.cancelCode(code.toNumber(), { from: this.accounts[0] });
+      } catch (ex:any) {
+        assert.include(ex.message, "This code has been already executed");
+      }
+    });
+
+    it('fails when code is already expired', async function () {
+      try {
+        const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
+        const code = await receipt.logs[0].args.code;
+
+        if (typeof web3 !== 'undefined') {
+          // Increase the time by 91 seconds
+          await (web3.currentProvider as any).send(
+            {
+              jsonrpc: '2.0',
+              method: 'evm_increaseTime',
+              params: [91],
+              id: 0,
+            },
+            () => {}
+          );
+          // Mine a new block to make the changes take effect
+          await (web3.currentProvider as any).send(
+            {
+              jsonrpc: '2.0',
+              method: 'evm_mine',
+              id: 0,
+            },
+            () => {}
+          );
+        }
+        await this.etc.cancelCode(code.toNumber(), { from: this.accounts[0] });
+      } catch (ex:any) {
+        assert.include(ex.message, "This code is already expired");
+      }
+    });
+
+    it('successfully cancels the code', async function () {
+      try {
+        const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
+        const code = await receipt.logs[0].args.code;
+        await this.etc.cancelCode(code.toNumber(), { from: this.accounts[0] });
+        await this.etc.useCode(code.toNumber(), { from: this.accounts[1] });
+      } catch (ex:any) {
+        console.log(ex.message);
+        assert.include(ex.message, "Code doesn't exists or is expired");
+      }
+    });
+  });
 });
