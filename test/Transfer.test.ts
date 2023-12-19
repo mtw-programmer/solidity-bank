@@ -34,7 +34,11 @@ describe('Transfer Contract:', () => {
       const toppedUpEvent = transaction.logs.find((log:{ event:string }) => log.event === 'ToppedUp');
 
       assert.exists(toppedUpEvent, 'ToppedUp event should be emitted');
-      assert.notEqual(toppedUpEvent.args.account.toNumber(), 0, 'Invalid account id');
+      assert.equal(
+        toppedUpEvent.args.account.toString().toLowerCase(),
+        this.accounts[0].toLowerCase(),
+        'Invalid account address'
+      );
       assert.equal(toppedUpEvent.args.amount.toString(), web3.utils.toWei('1', 'ether'), 'Amount should match');
     });
   });

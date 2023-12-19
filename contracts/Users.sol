@@ -2,52 +2,45 @@
 pragma solidity ^0.8.19;
 
 contract Users {
-  mapping(address => bool) private modifiers;
+    mapping(address => bool) private modifiers;
+    mapping(address => uint256) private balance;
 
-  uint private accountQuantity = 0;
-  mapping(address => uint) private id;
-  mapping(uint => uint256) private balance;
-
-  constructor() {
-    modifiers[msg.sender] = true;
-    modifiers[address(this)] = true;
-  }
-
-  modifier restricted() {
-    require(modifiers[msg.sender], "This function is restricted to the contract's owner");
-    _;
-  }
-
-  function addModifier(address _address) external restricted {
-    modifiers[_address] = true;
-  }
-
-  function getUserId(address _address) public restricted returns (uint) {
-    if (id[_address] == 0) {
-      accountQuantity += 1;
-      id[_address] = accountQuantity;
+    constructor() {
+        modifiers[msg.sender] = true;
+        modifiers[address(this)] = true;
     }
 
-    return id[_address];
-  }
+    modifier restricted() {
+        require(
+            modifiers[msg.sender],
+            "This function is restricted to the contract's owner"
+        );
+        _;
+    }
 
-  function getUserBalance (address _address) external restricted returns (uint256) {
-    uint userId = getUserId(_address);
-    return balance[userId];
-  }
+    function addModifier(address _address) external restricted {
+        modifiers[_address] = true;
+    }
 
-  function addFunds(address _to, uint256 _amount) external restricted {
-    uint userId = getUserId(_to);
-    require(userId > 0, "Invalid user address");
-    require(_amount > 0, "Invalid amount");
-    balance[userId] += _amount;
-  }
+    function getUserBalance(
+        address _address
+    ) external view restricted returns (uint256) {
+        return balance[_address];
+    }
 
-  function takeFunds(address _from, uint256 _amount) external restricted {
-    uint userId = getUserId(_from);
-    require(userId > 0, "Invalid user address");
-    require(_amount > 0, "Invalid amount");
-    require(balance[userId] >= _amount, "Insufficient amount on the account");
-    balance[userId] -= _amount;
-  }
+    function addFunds(address _to, uint256 _amount) external restricted {
+        require(_to != address(0), "Invalid user address");
+        require(_amount > 0, "Invalid amount");
+        balance[_to] += _amount;
+    }
+
+    function takeFunds(address _from, uint256 _amount) external restricted {
+        require(_from != address(0), "Invalid user address");
+        require(_amount > 0, "Invalid amount");
+        require(
+            balance[_from] >= _amount,
+            "Insufficient amount on the account"
+        );
+        balance[_from] -= _amount;
+    }
 }

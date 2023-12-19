@@ -37,22 +37,6 @@ describe('Users Contract:', () => {
     });
   });
 
-  describe('[getUserId]', function () {
-    it('fails when restricted account tries to get user id', async function () {
-      try {
-        await this.users.getUserId(this.accounts[1], { from: this.accounts[2] });
-        assert.fail('Expected an error but did not get one');
-      } catch (ex:any) {
-        assert.include(ex.message, "This function is restricted to the contract's owner");
-      }
-    });
-
-    it('successfully gets user id', async function () {
-      const res = await this.users.getUserId.call(this.accounts[1], { from: this.accounts[1] });
-      expect(res.toNumber() > 0).to.be.true;
-    });
-  });
-
   describe('[getUserBalance]', function () {
     it('fails when restricted account tries to get balance', async function () {
       try {
