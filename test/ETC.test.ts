@@ -101,10 +101,10 @@ describe('ETC Contract:', () => {
         const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
         const code = receipt.logs[0].args.code;
 
-        await this.users.addFunds(this.accounts[1], 1 , { from: this.accounts[0] });
+        await this.users.addFunds(this.accounts[1], 1, { from: this.accounts[0] });
 
-        await this.etc.useCode(code, { from: this.accounts[1] });
-        await this.etc.useCode(code, { from: this.accounts[1] });
+        await this.etc.useCode(code.toNumber(), { from: this.accounts[1] });
+        await this.etc.useCode(code.toNumber(), { from: this.accounts[1] });
 
         assert.fail('Expected an error but did not get one');
       } catch (ex:any) {
@@ -114,9 +114,25 @@ describe('ETC Contract:', () => {
 
     it('successfully uses a code', async function () {
       const receipt = await this.etc.generateCode(1, { from: this.accounts[0] });
-      const code = receipt.logs[0].args.code;
-      await this.users.addFunds(this.accounts[1], 1, { from: this.accounts[0] });
-      const res = await this.etc.useCode(code, { from: this.accounts[1] });
+      const code = await receipt.logs[0].args.code;
+
+      const balanceBeforeSender = await this.users.getUserBalance.call(this.accounts[1], { from: this.accounts[0] });
+      const balanceBeforeRecipient = await this.users.getUserBalance.call(this.accounts[0], { from: this.accounts[0] });
+
+      assert.isTrue(code.toNumber() >= 100000 && code.toNumber() <= 999999, 'The code range is not valid');
+      assert.equal(balanceBeforeSender.toNumber(), 1, 'The sender balance before transaction is not valid');
+      assert.equal(balanceBeforeRecipient.toNumber(), 1, 'The recipient balance before transaction is not valid');
+
+      await this.etc.useCode(code.toNumber(), { from: this.accounts[1] });
+
+      // Wait for the transaction to be mined
+      await web3.eth.getTransactionReceipt(receipt.tx);
+
+      const balanceAfterSender = await this.users.getUserBalance.call(this.accounts[1], { from: this.accounts[0] });
+      const balanceAfterRecipient = await this.users.getUserBalance.call(this.accounts[0], { from: this.accounts[0] });
+
+      assert.equal(balanceAfterSender.toNumber(), 0, 'The sender balance after transaction is not valid');
+      assert.equal(balanceAfterRecipient.toNumber(), 2, 'The recipient balance after transaction is not valid');
     });
   });
 });
